@@ -1,0 +1,45 @@
+{% extends 'analyzer/base.html' %}
+
+{% block title %}Resume Details - Resume AI Analyzer{% endblock %}
+
+{% block content %}
+<h1>Resume Details</h1>
+
+<div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 2rem;">
+    <h2 style="margin-top: 0;">Resume Information</h2>
+    <p style="margin-bottom: 0.75rem;"><strong>ID:</strong> {{ resume.id }}</p>
+    <p style="margin-bottom: 0.75rem;"><strong>File:</strong> {{ resume.file.name }}</p>
+    <p style="margin-bottom: 0.75rem;"><strong>Uploaded:</strong> {{ resume.uploaded_at|date:"M d, Y H:i" }}</p>
+    <a href="{{ resume.file.url }}" target="_blank" class="btn">Download/View File</a>
+</div>
+
+{% if extracted_data %}
+    <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 2rem;">
+        <h2 style="margin-top: 0;">Extracted Data</h2>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <h3 style="color: #667eea; margin-bottom: 0.5rem;">Skills</h3>
+            <p style="line-height: 1.6; color: #555;">{{ extracted_data.skills }}</p>
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <h3 style="color: #667eea; margin-bottom: 0.5rem;">Experience</h3>
+            <p style="line-height: 1.6; color: #555;">{{ extracted_data.experience }}</p>
+        </div>
+        
+        <div>
+            <h3 style="color: #667eea; margin-bottom: 0.5rem;">Education</h3>
+            <p style="line-height: 1.6; color: #555;">{{ extracted_data.education }}</p>
+        </div>
+    </div>
+{% else %}
+    <div style="background: #fff3cd; padding: 1.5rem; border-radius: 8px; color: #856404; margin-bottom: 2rem;">
+        <strong>No extracted data available.</strong> Data extraction may still be processing.
+    </div>
+{% endif %}
+
+<div style="display: flex; gap: 1rem;">
+    <a href="{% url 'resume_list' %}" class="btn secondary">Back to List</a>
+    <a href="{% url 'match_results' resume.id %}" class="btn">View Match Results</a>
+</div>
+{% endblock %}

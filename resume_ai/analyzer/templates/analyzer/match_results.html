@@ -1,0 +1,70 @@
+{% extends 'analyzer/base.html' %}
+
+{% block title %}Match Results - Resume AI Analyzer{% endblock %}
+
+{% block extra_css %}
+<style>
+    .score-pill {
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-weight: bold;
+    }
+
+    .score-high {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .score-medium {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .score-low {
+        background: #f8d7da;
+        color: #721c24;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Job Match Results</h1>
+<p style="margin-bottom: 2rem; color: #666;">Resume #{{ resume.id }} | Total matches: <strong>{{ total_matches }}</strong></p>
+
+{% if matches %}
+    <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead style="background: #667eea; color: white;">
+                <tr>
+                    <th style="padding: 1rem; text-align: left;">Job Title</th>
+                    <th style="padding: 1rem; text-align: left;">Description</th>
+                    <th style="padding: 1rem; text-align: center;">Match Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for match in matches %}
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 1rem; font-weight: 600;">{{ match.job.title }}</td>
+                        <td style="padding: 1rem; color: #666;">{{ match.job.description|truncatewords:20 }}</td>
+                        <td style="padding: 1rem; text-align: center;">
+                            <span class="score-pill {% if match.score >= 80 %}score-high{% elif match.score >= 60 %}score-medium{% else %}score-low{% endif %}">
+                                {{ match.score|floatformat:1 }}%
+                            </span>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div style="background: white; padding: 3rem; border-radius: 8px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+        <h3 style="color: #666; margin-bottom: 1rem;">No match results available</h3>
+        <p style="color: #888; margin-bottom: 1.5rem;">Job matching has not been run for this resume yet.</p>
+    </div>
+{% endif %}
+
+<div style="margin-top: 2rem; display: flex; gap: 1rem;">
+    <a href="{% url 'resume_detail' resume.id %}" class="btn secondary">Back to Resume</a>
+    <a href="{% url 'resume_list' %}" class="btn">All Resumes</a>
+</div>
+{% endblock %}

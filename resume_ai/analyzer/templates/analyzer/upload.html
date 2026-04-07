@@ -1,0 +1,33 @@
+{% extends 'analyzer/base.html' %}
+
+{% block title %}Upload Resume - Resume AI Analyzer{% endblock %}
+
+{% block content %}
+<h1>Upload Resume</h1>
+<p style="margin-bottom: 2rem; color: #666;">Upload your resume file for AI-powered analysis and job matching.</p>
+
+<div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 600px;">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div style="margin-bottom: 1.5rem;">
+            <label for="resume_file" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Select Resume File</label>
+            <input type="file" name="resume_file" id="resume_file" accept=".pdf,.doc,.docx,.txt" required
+                   style="width: 100%; padding: 0.75rem; border: 2px dashed #ddd; border-radius: 4px; font-size: 1rem;">
+            <small style="color: #666; display: block; margin-top: 0.5rem;">Supported formats: PDF, DOC, DOCX, TXT</small>
+        </div>
+        
+        <button type="submit" class="btn">Upload and Analyze</button>
+        <a href="{% url 'resume_list' %}" class="btn secondary" style="margin-left: 1rem;">View All Resumes</a>
+    </form>
+</div>
+
+<div style="margin-top: 2rem; background: #e8f4fd; padding: 1.5rem; border-radius: 8px; max-width: 600px;">
+    <h3 style="color: #0c5460; margin-bottom: 0.75rem;">What happens after upload?</h3>
+    <ul style="margin-left: 1.5rem; color: #0c5460; line-height: 1.8;">
+        <li>Your resume is securely stored</li>
+        <li>AI extracts skills, experience, and education</li>
+        <li>You can view detailed analysis results</li>
+        <li>Job matching scores are generated</li>
+    </ul>
+</div>
+{% endblock %}

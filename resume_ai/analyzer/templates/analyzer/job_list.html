@@ -1,0 +1,26 @@
+{% extends 'analyzer/base.html' %}
+
+{% block title %}Job List - Resume AI Analyzer{% endblock %}
+
+{% block content %}
+<h1>Available Jobs</h1>
+<p style="margin-bottom: 2rem; color: #666;">Total jobs: <strong>{{ total_jobs }}</strong></p>
+
+{% if jobs %}
+    <div style="display: grid; gap: 1rem;">
+        {% for job in jobs %}
+            <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                <h3 style="margin-bottom: 0.75rem; color: #333;">{{ job.title }}</h3>
+                <p style="margin-bottom: 0.75rem; color: #666; line-height: 1.6;">{{ job.description }}</p>
+                <p style="color: #667eea;"><strong>Required Skills:</strong> {{ job.required_skills }}</p>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div style="background: white; padding: 3rem; border-radius: 8px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+        <h3 style="color: #666; margin-bottom: 1rem;">No jobs available</h3>
+        <p style="color: #888;">Add jobs through admin panel to see them here.</p>
+        <a href="/admin/" class="btn" style="margin-top: 1rem;">Go to Admin</a>
+    </div>
+{% endif %}
+{% endblock %}
