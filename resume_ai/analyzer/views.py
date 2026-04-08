@@ -4,6 +4,11 @@ from django.views.decorators.http import require_http_methods
 from .models import Resume, ExtarctedData, Job, MatchResult
 
 
+def home(request):
+    """Root route for the app."""
+    return redirect('upload_resume')
+
+
 def extract_resume_data(file_path):
     """
     Placeholder function to extract data from resume file.

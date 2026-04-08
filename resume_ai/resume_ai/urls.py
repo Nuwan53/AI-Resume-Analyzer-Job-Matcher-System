@@ -18,8 +18,10 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from analyzer import views as analyzer_views
 
 urlpatterns = [
+    path('', analyzer_views.home, name='home'),
     path('admin/', admin.site.urls),
     path('analyzer/', include('analyzer.urls')),
 ]
