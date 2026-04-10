@@ -32,7 +32,8 @@ def extract_resume_data(file_path):
 @require_http_methods(["GET", "POST"])
 def upload_resume(request):
     """
-    Handle resume file upload and create Resume + ExtractedData records.
+   
+        Handle resume file upload and data extraction.
     GET: Display upload form
     POST: Process uploaded file and extract data
     """

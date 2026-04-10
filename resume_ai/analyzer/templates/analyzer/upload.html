@@ -2,32 +2,110 @@
 
 {% block title %}Upload Resume - Resume AI Analyzer{% endblock %}
 
+{% block extra_css %}
+<style>
+    .upload-layout {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 1.25rem;
+        align-items: start;
+    }
+
+    .upload-hero {
+        margin-bottom: 1rem;
+    }
+
+    .kicker {
+        color: var(--accent-600);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 0.8rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .upload-card {
+        animation: riseIn 0.45s ease;
+    }
+
+    .file-label {
+        display: block;
+        margin-bottom: 0.45rem;
+        font-weight: 700;
+        color: var(--ink-700);
+    }
+
+    .file-hint {
+        display: block;
+        margin-top: 0.4rem;
+        color: var(--ink-500);
+        font-size: 0.9rem;
+    }
+
+    .steps {
+        list-style: none;
+        display: grid;
+        gap: 0.7rem;
+        margin-top: 0.2rem;
+    }
+
+    .steps li {
+        display: flex;
+        gap: 0.6rem;
+        align-items: flex-start;
+    }
+
+    .step-index {
+        min-width: 1.55rem;
+        height: 1.55rem;
+        border-radius: 999px;
+        display: inline-grid;
+        place-items: center;
+        background: #f2e6d4;
+        color: var(--accent-600);
+        font-size: 0.82rem;
+        font-weight: 800;
+    }
+
+    @media (max-width: 920px) {
+        .upload-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<h1>Upload Resume</h1>
-<p style="margin-bottom: 2rem; color: #666;">Upload your resume file for AI-powered analysis and job matching.</p>
+<section class="upload-hero">
+    <p class="kicker">Resume Intelligence</p>
+    <h1 class="page-headline">Upload a resume and get structured insights in seconds.</h1>
+    <p class="muted">Use this workspace to transform raw CV content into skills, experience, education summaries, and matching-ready data.</p>
+</section>
 
-<div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 600px;">
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div style="margin-bottom: 1.5rem;">
-            <label for="resume_file" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Select Resume File</label>
-            <input type="file" name="resume_file" id="resume_file" accept=".pdf,.doc,.docx,.txt" required
-                   style="width: 100%; padding: 0.75rem; border: 2px dashed #ddd; border-radius: 4px; font-size: 1rem;">
-            <small style="color: #666; display: block; margin-top: 0.5rem;">Supported formats: PDF, DOC, DOCX, TXT</small>
-        </div>
-        
-        <button type="submit" class="btn">Upload and Analyze</button>
-        <a href="{% url 'resume_list' %}" class="btn secondary" style="margin-left: 1rem;">View All Resumes</a>
-    </form>
-</div>
+<section class="upload-layout">
+    <div class="surface upload-card">
+        <form method="post" enctype="multipart/form-data" class="grid">
+            {% csrf_token %}
+            <div>
+                <label for="resume_file" class="file-label">Select Resume File</label>
+                <input type="file" name="resume_file" id="resume_file" accept=".pdf,.doc,.docx,.txt" required>
+                <small class="file-hint">Supported formats: PDF, DOC, DOCX, TXT</small>
+            </div>
 
-<div style="margin-top: 2rem; background: #e8f4fd; padding: 1.5rem; border-radius: 8px; max-width: 600px;">
-    <h3 style="color: #0c5460; margin-bottom: 0.75rem;">What happens after upload?</h3>
-    <ul style="margin-left: 1.5rem; color: #0c5460; line-height: 1.8;">
-        <li>Your resume is securely stored</li>
-        <li>AI extracts skills, experience, and education</li>
-        <li>You can view detailed analysis results</li>
-        <li>Job matching scores are generated</li>
-    </ul>
-</div>
+            <div class="btn-row">
+                <button type="submit" class="btn">Upload and Analyze</button>
+                <a href="{% url 'resume_list' %}" class="btn secondary">View All Resumes</a>
+            </div>
+        </form>
+    </div>
+
+    <aside class="surface soft">
+        <h3>What happens next</h3>
+        <ul class="steps">
+            <li><span class="step-index">1</span><span>Your file is stored in your project media folder.</span></li>
+            <li><span class="step-index">2</span><span>Core data points are extracted and saved to your database.</span></li>
+            <li><span class="step-index">3</span><span>You can review resume details and matching results from the dashboard.</span></li>
+        </ul>
+    </aside>
+</section>
 {% endblock %}
