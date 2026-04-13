@@ -38,8 +38,15 @@
     </div>
 {% endif %}
 
-<div style="display: flex; gap: 1rem;">
+<div style="display: flex; gap: 1rem; flex-wrap: wrap;">
     <a href="{% url 'resume_list' %}" class="btn secondary">Back to List</a>
-    <a href="{% url 'match_results' resume.id %}" class="btn">View Match Results</a>
+    {% if extracted_data %}
+        <form method="POST" action="{% url 'generate_matches' resume.id %}" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn" style="background: #10b981; border: none; cursor: pointer; padding: 0.75rem 1.5rem; border-radius: 8px; color: white; font-weight: 600;">
+                🔍 Find Matching Jobs
+            </button>
+        </form>
+    {% endif %}
 </div>
 {% endblock %}
