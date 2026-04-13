@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from .models import Resume, ExtarctedData, Job, MatchResult
+from .cv_analyzer import CVAnalyzer
 
 
 def home(request):
@@ -131,3 +132,59 @@ def job_list(request):
         'total_jobs': jobs.count()
     }
     return render(request, 'analyzer/job_list.html', context)
+
+
+@require_http_methods(["POST"])
+def generate_matches(request, pk):
+    """
+    Generate job matches for a resume using CV analyzer.
+    
+    Process:
+    1. Get resume and check if extracted data exists
+    2. Calculate match scores against all jobs
+    3. Create/update MatchResult records
+    4. Redirect to match_results view
+    """
+    resume = get_object_or_404(Resume, pk=pk)
+    
+    try:
+        extracted_data = ExtarctedData.objects.get(resume=resume)
+    except ExtarctedData.DoesNotExist:
+        messages.error(request, 'No extracted data found. Please re-upload the resume.')
+        return redirect('resume_detail', pk=resume.id)
+    
+    try:
+        # Get all jobs
+        jobs = Job.objects.all()
+        
+        if not jobs.exists():
+            messages.warning(request, 'No jobs available in the system.')
+            return redirect('resume_detail', pk=resume.id)
+        
+        # Clear previous matches for this resume
+        MatchResult.objects.filter(resume=resume).delete()
+        
+        # Generate matches for each job
+        match_count = 0
+        for job in jobs:
+            score = CVAnalyzer.calculate_match_score(extracted_data, job)
+            
+            # Only create match if score is above 0
+            if score > 0:
+                MatchResult.objects.create(
+                    resume=resume,
+                    job=job,
+                    score=score
+                )
+                match_count += 1
+        
+        if match_count > 0:
+            messages.success(request, f'✓ Generated {match_count} job matches! Check results below.')
+        else:
+            messages.warning(request, 'No matching jobs found. Try uploading a different resume.')
+        
+        return redirect('match_results', pk=resume.id)
+    
+    except Exception as e:
+        messages.error(request, f'Error generating matches: {str(e)}')
+        return redirect('resume_detail', pk=resume.id)
