@@ -103,14 +103,14 @@
 
     {% if matches.0.score >= 80 %}
         <div style="background: #d4edda; padding: 1.5rem; border-radius: 8px; margin-top: 2rem; color: #155724;">
-            <strong>✓ Great News!</strong> You have excellent matches! Review the positions above that are marked in green.
+            <strong>✓ Great News!</strong>Congrats!, You have excellent matches! Review the positions above that are marked in green.
         </div>
     {% elif matches.0.score >= 60 %}
-        <div style="background: #fff3cd; padding: 1.5rem; border-radius: 8px; margin-top: 2rem; color: #856404;">
+        <div style="background: #fff3cd; padding: 1.5rem; border-radius: 8px; margin-top: 2rem; color: #c49712;">
             <strong>⚡ Good Opportunities!</strong> You have several good matches. Consider the top-ranked positions.
         </div>
     {% else %}
-        <div style="background: #f8d7da; padding: 1.5rem; border-radius: 8px; margin-top: 2rem; color: #721c24;">
+        <div style="background: #f8d7da; padding: 1.5rem; border-radius: 8px; margin-top: 2rem; color: #c91426;">
             <strong>ℹ Note:</strong> You have some matching opportunities. Consider building more skills to improve your fit with available positions.
         </div>
     {% endif %}
