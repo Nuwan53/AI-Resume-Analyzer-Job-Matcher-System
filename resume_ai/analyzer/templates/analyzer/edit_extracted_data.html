@@ -1,0 +1,98 @@
+{% extends 'analyzer/base.html' %}
+
+{% block title %}Edit Resume Data - Resume AI Analyzer{% endblock %}
+
+{% block content %}
+<h1>Edit Resume Data</h1>
+<p style="margin-bottom: 2rem; color: #666;">Resume #{{ resume.id }} | {{ resume.file.name }}</p>
+
+<div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 2rem;">
+    <form method="POST">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <div style="background: #f8d7da; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; color: #721c24;">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        <!-- Skills Field -->
+        <div style="margin-bottom: 2rem;">
+            <label for="{{ form.skills.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">
+                {{ form.skills.label }}
+            </label>
+            {% if form.skills.help_text %}
+                <p style="margin-bottom: 0.5rem; color: #666; font-size: 0.9rem;">{{ form.skills.help_text }}</p>
+            {% endif %}
+            {{ form.skills }}
+            {% if form.skills.errors %}
+                <div style="color: #721c24; margin-top: 0.5rem; font-size: 0.9rem;">
+                    {% for error in form.skills.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Experience Field -->
+        <div style="margin-bottom: 2rem;">
+            <label for="{{ form.experience.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">
+                {{ form.experience.label }}
+            </label>
+            {% if form.experience.help_text %}
+                <p style="margin-bottom: 0.5rem; color: #666; font-size: 0.9rem;">{{ form.experience.help_text }}</p>
+            {% endif %}
+            {{ form.experience }}
+            {% if form.experience.errors %}
+                <div style="color: #721c24; margin-top: 0.5rem; font-size: 0.9rem;">
+                    {% for error in form.experience.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Education Field -->
+        <div style="margin-bottom: 2rem;">
+            <label for="{{ form.education.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">
+                {{ form.education.label }}
+            </label>
+            {% if form.education.help_text %}
+                <p style="margin-bottom: 0.5rem; color: #666; font-size: 0.9rem;">{{ form.education.help_text }}</p>
+            {% endif %}
+            {{ form.education }}
+            {% if form.education.errors %}
+                <div style="color: #721c24; margin-top: 0.5rem; font-size: 0.9rem;">
+                    {% for error in form.education.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Submit Buttons -->
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; padding-top: 1rem; border-top: 1px solid #eee;">
+            <button type="submit" class="btn" style="background: #10b981; border: none; cursor: pointer; padding: 0.75rem 1.5rem; border-radius: 8px; color: white; font-weight: 600;">
+                ✓ Save Changes
+            </button>
+            <a href="{% url 'resume_detail' resume.id %}" class="btn secondary" style="padding: 0.75rem 1.5rem; border-radius: 8px; border: 1px solid #ddd; text-decoration: none; color: #667eea; background: white;">
+                ✕ Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Tips Section -->
+<div style="background: #f0f7ff; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #667eea;">
+    <h3 style="color: #667eea; margin-bottom: 0.75rem;">💡 Tips for Better Matches</h3>
+    <ul style="color: #555; line-height: 1.8; margin-left: 1.5rem;">
+        <li><strong>Skills:</strong> Include all relevant technical skills, languages, and frameworks. Be specific (e.g., "Python 3.9", "Django 4.0")</li>
+        <li><strong>Experience:</strong> Highlight years of experience, key achievements, and relevant responsibilities</li>
+        <li><strong>Education:</strong> List degrees, certifications, and any relevant training programs</li>
+        <li>Use <strong>comma-separated values</strong> for easy parsing and better matching</li>
+        <li>After editing, click "Find Matching Jobs" again to recalculate match scores</li>
+    </ul>
+</div>
+{% endblock %}

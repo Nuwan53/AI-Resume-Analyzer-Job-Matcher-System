@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from .models import Resume, ExtarctedData, Job, MatchResult
 from .cv_analyzer import CVAnalyzer
+from .forms import ExtractedDataForm
 
 
 def home(request):
@@ -188,3 +189,37 @@ def generate_matches(request, pk):
     except Exception as e:
         messages.error(request, f'Error generating matches: {str(e)}')
         return redirect('resume_detail', pk=resume.id)
+
+
+@require_http_methods(["GET", "POST"])
+def edit_extracted_data(request, pk):
+    """
+    Edit extracted resume data.
+    GET: Display edit form
+    POST: Save changes
+    """
+    resume = get_object_or_404(Resume, pk=pk)
+    
+    try:
+        extracted_data = ExtarctedData.objects.get(resume=resume)
+    except ExtarctedData.DoesNotExist:
+        messages.error(request, 'No extracted data found for this resume.')
+        return redirect('resume_detail', pk=resume.id)
+    
+    if request.method == 'POST':
+        form = ExtractedDataForm(request.POST, instance=extracted_data)
+        if form.is_valid():
+            form.save()
+            messages.success(request, '✓ Resume data updated successfully!')
+            return redirect('resume_detail', pk=resume.id)
+        else:
+            messages.error(request, 'Error updating resume data. Please check your input.')
+    else:
+        form = ExtractedDataForm(instance=extracted_data)
+    
+    context = {
+        'resume': resume,
+        'extracted_data': extracted_data,
+        'form': form
+    }
+    return render(request, 'analyzer/edit_extracted_data.html', context)

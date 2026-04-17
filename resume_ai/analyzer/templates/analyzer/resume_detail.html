@@ -39,8 +39,9 @@
 {% endif %}
 
 <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-    <a href="{% url 'resume_list' %}" class="btn secondary">Back to List</a>
+    <a href="{% url 'resume_list' %}" class="btn secondary" style="padding: 0.75rem 1.5rem; border-radius: 8px; border: 1px solid #ddd; text-decoration: none; color: #667eea; background: white;">Back to List</a>
     {% if extracted_data %}
+        <a href="{% url 'edit_extracted_data' resume.id %}" class="btn secondary" style="padding: 0.75rem 1.5rem; border-radius: 8px; border: 1px solid #ddd; text-decoration: none; color: #667eea; background: white;">✏️ Edit Resume Data</a>
         <form method="POST" action="{% url 'generate_matches' resume.id %}" style="display: inline;">
             {% csrf_token %}
             <button type="submit" class="btn" style="background: #10b981; border: none; cursor: pointer; padding: 0.75rem 1.5rem; border-radius: 8px; color: white; font-weight: 600;">
