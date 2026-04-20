@@ -178,3 +178,166 @@ class CVAnalyzer:
         matches.sort(key=lambda x: x[1], reverse=True)
         
         return matches
+    
+    @staticmethod
+    def analyze_skill_gaps(resume_data, job):
+        """
+        Analyze skill gaps between resume and job requirements.
+        
+        Args:
+            resume_data (ExtractedData): Resume extracted data
+            job (Job): Job object
+            
+        Returns:
+            dict: Gap analysis with matched and missing skills
+        """
+        if not resume_data or not job:
+            return {
+                'matched_skills': [],
+                'missing_skills': [],
+                'gap_percentage': 100.0
+            }
+        
+        # Extract resume skills
+        resume_text = f"{resume_data.skills} {resume_data.experience} {resume_data.education}"
+        resume_skills = CVAnalyzer.extract_skills(resume_text)
+        
+        # Parse required skills
+        job_skills_text = job.required_skills.lower()
+        required_skills = [s.strip() for s in job_skills_text.split(',')]
+        required_skills = [s for s in required_skills if s]
+        
+        if not required_skills:
+            return {
+                'matched_skills': [],
+                'missing_skills': [],
+                'gap_percentage': 0.0
+            }
+        
+        matched_skills = []
+        missing_skills = []
+        
+        for required_skill in required_skills:
+            found = False
+            for resume_skill in resume_skills:
+                similarity = CVAnalyzer.string_similarity(required_skill, resume_skill)
+                if similarity >= 0.6 or required_skill in resume_skill or resume_skill in required_skill:
+                    matched_skills.append(required_skill)
+                    found = True
+                    break
+            
+            if not found:
+                missing_skills.append(required_skill)
+        
+        gap_percentage = (len(missing_skills) / len(required_skills)) * 100 if required_skills else 0
+        
+        return {
+            'matched_skills': matched_skills,
+            'missing_skills': missing_skills,
+            'gap_percentage': round(gap_percentage, 1)
+        }
+    
+    @staticmethod
+    def get_top_recommendations(resume, jobs, top_n=5):
+        """
+        Get top skill recommendations based on job market demand.
+        
+        Args:
+            resume (Resume): Resume object
+            jobs (QuerySet): All available jobs
+            top_n (int): Number of recommendations to return
+            
+        Returns:
+            list: List of skill recommendations with frequency and importance scores
+        """
+        from .models import ExtarctedData
+        from collections import Counter
+        
+        try:
+            extracted_data = ExtarctedData.objects.get(resume=resume)
+        except ExtarctedData.DoesNotExist:
+            return []
+        
+        # Get resume skills
+        resume_text = f"{extracted_data.skills} {extracted_data.experience} {extracted_data.education}"
+        resume_skills = set(CVAnalyzer.extract_skills(resume_text))
+        
+        # Count skill demand across all jobs
+        skill_frequency = Counter()
+        skill_improvements = {}
+        
+        for job in jobs:
+            job_skills_text = job.required_skills.lower()
+            required_skills = [s.strip() for s in job_skills_text.split(',')]
+            required_skills = [s for s in required_skills if s]
+            
+            for skill in required_skills:
+                # Check if user already has this skill
+                has_skill = any(
+                    CVAnalyzer.string_similarity(skill, user_skill) >= 0.6 
+                    for user_skill in resume_skills
+                )
+                
+                if not has_skill:
+                    skill_frequency[skill] += 1
+                    if skill not in skill_improvements:
+                        skill_improvements[skill] = 0
+                    skill_improvements[skill] += 1
+        
+        # Calculate importance score
+        recommendations = []
+        for skill, frequency in skill_frequency.most_common():
+            improvement = skill_improvements.get(skill, 0)
+            importance_score = (frequency * 0.6) + (improvement * 0.4)
+            recommendations.append({
+                'skill': skill,
+                'frequency': frequency,
+                'importance_score': round(importance_score, 2)
+            })
+        
+        return recommendations[:top_n]
+    
+    @staticmethod
+    def get_skill_recommendations_for_job(resume_data, job):
+        """
+        Get skill recommendations specific to a job with priority levels.
+        
+        Args:
+            resume_data (ExtractedData): Resume data
+            job (Job): Target job
+            
+        Returns:
+            dict: Recommendations categorized by priority
+        """
+        gaps = CVAnalyzer.analyze_skill_gaps(resume_data, job)
+        
+        # Categorize skills by priority
+        high_priority = []
+        medium_priority = []
+        low_priority = []
+        
+        core_skills = {'python', 'java', 'javascript', 'sql', 'rest', 'api'}
+        infrastructure_skills = {'docker', 'kubernetes', 'aws', 'azure', 'linux', 'devops'}
+        soft_skills = {'communication', 'leadership', 'teamwork', 'management'}
+        
+        for skill in gaps['missing_skills']:
+            skill_lower = skill.lower()
+            
+            if any(core in skill_lower for core in core_skills):
+                high_priority.append(skill)
+            elif any(infra in skill_lower for infra in infrastructure_skills):
+                medium_priority.append(skill)
+            elif any(soft in skill_lower for soft in soft_skills):
+                low_priority.append(skill)
+            else:
+                medium_priority.append(skill)
+        
+        return {
+            'total_missing': len(gaps['missing_skills']),
+            'matched_count': len(gaps['matched_skills']),
+            'gap_percentage': gaps['gap_percentage'],
+            'high_priority': high_priority,
+            'medium_priority': medium_priority,
+            'low_priority': low_priority,
+            'all_missing': gaps['missing_skills']
+        }

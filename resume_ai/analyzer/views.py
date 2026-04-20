@@ -223,3 +223,46 @@ def edit_extracted_data(request, pk):
         'form': form
     }
     return render(request, 'analyzer/edit_extracted_data.html', context)
+
+
+def job_recommendations(request, pk):
+    """
+    Display skill recommendations for improving job match scores.
+    Shows market demand for skills and job-specific gaps.
+    """
+    resume = get_object_or_404(Resume, pk=pk)
+    
+    try:
+        extracted_data = ExtarctedData.objects.get(resume=resume)
+    except ExtarctedData.DoesNotExist:
+        messages.error(request, 'No extracted data found.')
+        return redirect('resume_detail', pk=resume.id)
+    
+    # Get all jobs with recommendations
+    jobs = Job.objects.all()
+    job_recommendations = []
+    
+    for job in jobs:
+        recommendations = CVAnalyzer.get_skill_recommendations_for_job(extracted_data, job)
+        if recommendations['total_missing'] > 0:
+            match_result = MatchResult.objects.filter(resume=resume, job=job).first()
+            current_score = match_result.score if match_result else 0
+            
+            job_recommendations.append({
+                'job': job,
+                'recommendations': recommendations,
+                'current_score': current_score
+            })
+    
+    # Sort by skill gap (high gap = high improvement potential)
+    job_recommendations.sort(key=lambda x: x['recommendations']['gap_percentage'], reverse=True)
+    
+    # Get top skills to learn across all jobs
+    top_recommendations = CVAnalyzer.get_top_recommendations(resume, jobs, top_n=10)
+    
+    context = {
+        'resume': resume,
+        'job_recommendations': job_recommendations,
+        'top_recommendations': top_recommendations
+    }
+    return render(request, 'analyzer/recommendations.html', context)

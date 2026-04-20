@@ -125,5 +125,6 @@
     <a href="{% url 'resume_detail' resume.id %}" class="btn secondary">Back to Resume</a>
     <a href="{% url 'resume_list' %}" class="btn">All Resumes</a>
     <a href="{% url 'job_list' %}" class="btn secondary">View All Jobs</a>
+    <a href="{% url 'job_recommendations' resume.id %}" class="btn secondary" style="padding: 0.75rem 1.5rem; border-radius: 8px; border: 1px solid #ddd; text-decoration: none; color: #667eea; background: white;">💡 Skill Recommendations</a>
 </div>
 {% endblock %}

@@ -1,0 +1,179 @@
+{% extends 'analyzer/base.html' %}
+
+{% block title %}Skill Recommendations - Resume AI Analyzer{% endblock %}
+
+{% block extra_css %}
+<style>
+    .priority-high {
+        border-left: 4px solid #dc2626;
+        background: #fef2f2;
+    }
+    
+    .priority-medium {
+        border-left: 4px solid #f59e0b;
+        background: #fffbf0;
+    }
+    
+    .priority-low {
+        border-left: 4px solid #10b981;
+        background: #f0fdf4;
+    }
+    
+    .skill-tag {
+        display: inline-block;
+        padding: 0.5rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        margin: 0.25rem;
+    }
+    
+    .skill-high {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+    
+    .skill-medium {
+        background: #fef3c7;
+        color: #f59e0b;
+    }
+    
+    .skill-low {
+        background: #dcfce7;
+        color: #10b981;
+    }
+    
+    .recommendation-card {
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+    
+    .frequency-badge {
+        display: inline-block;
+        background: #667eea;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Skill Recommendations</h1>
+<p style="margin-bottom: 2rem; color: #666;">Resume #{{ resume.id }} - Personalized learning path based on job market</p>
+
+<!-- Top Skills to Learn Section -->
+<div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 2rem;">
+    <h2 style="color: #333; margin-bottom: 1.5rem;">🎯 Top Skills to Learn (Market Demand)</h2>
+    
+    {% if top_recommendations %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+            {% for rec in top_recommendations %}
+                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; border-left: 4px solid #667eea;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+                        <h4 style="margin: 0; color: #333; flex: 1;">{{ rec.skill|title }}</h4>
+                        <span class="frequency-badge">In {{ rec.frequency }} jobs</span>
+                    </div>
+                    <div style="color: #666; font-size: 0.9rem;">
+                        <p style="margin: 0.25rem 0;">
+                            <strong>Demand Score:</strong> {{ rec.importance_score }}/10
+                        </p>
+                        <div style="margin-top: 0.5rem;">
+                            <div style="background: #e5e7eb; height: 6px; border-radius: 3px; overflow: hidden;">
+                                <div style="background: #667eea; height: 100%; width: {% widthratio rec.importance_score 10 100 %}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="color: #666; text-align: center; padding: 2rem;">No additional skills recommended - you have excellent coverage!</p>
+    {% endif %}
+</div>
+
+<!-- Job-Specific Recommendations Section -->
+<div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 2rem;">
+    <h2 style="color: #333; margin-bottom: 1.5rem;">📋 Job-Specific Skill Gaps</h2>
+    
+    {% if job_recommendations %}
+        {% for item in job_recommendations %}
+            <div class="recommendation-card {% if item.recommendations.gap_percentage >= 60 %}priority-high{% elif item.recommendations.gap_percentage >= 30 %}priority-medium{% else %}priority-low{% endif %}">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                    <div>
+                        <h3 style="margin: 0 0 0.5rem 0; color: #333;">{{ item.job.title }}</h3>
+                        <p style="margin: 0; color: #666; font-size: 0.9rem;">Current Match: <strong>{{ item.current_score|floatformat:1 }}%</strong></p>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="font-size: 1.5rem; font-weight: 600; color: #667eea;">{{ item.recommendations.gap_percentage }}%</span>
+                        <p style="margin: 0.25rem 0 0 0; color: #666; font-size: 0.85rem;">Skill Gap</p>
+                    </div>
+                </div>
+                
+                <!-- Matched Skills -->
+                <div style="margin-bottom: 1rem;">
+                    <p style="margin: 0 0 0.5rem 0; font-weight: 600; color: #10b981;">✓ You Have ({{ item.recommendations.matched_count }})</p>
+                    <span style="color: #666; font-size: 0.9rem;">{{ item.recommendations.matched_count }} matching skills</span>
+                </div>
+                
+                <!-- High Priority Skills -->
+                {% if item.recommendations.high_priority %}
+                    <div style="margin-bottom: 1rem;">
+                        <p style="margin: 0 0 0.5rem 0; font-weight: 600; color: #dc2626;">🔴 High Priority (Critical)</p>
+                        <div>
+                            {% for skill in item.recommendations.high_priority %}
+                                <span class="skill-tag skill-high">{{ skill|title }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <!-- Medium Priority Skills -->
+                {% if item.recommendations.medium_priority %}
+                    <div style="margin-bottom: 1rem;">
+                        <p style="margin: 0 0 0.5rem 0; font-weight: 600; color: #f59e0b;">🟡 Medium Priority</p>
+                        <div>
+                            {% for skill in item.recommendations.medium_priority %}
+                                <span class="skill-tag skill-medium">{{ skill|title }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <!-- Low Priority Skills -->
+                {% if item.recommendations.low_priority %}
+                    <div>
+                        <p style="margin: 0 0 0.5rem 0; font-weight: 600; color: #10b981;">🟢 Low Priority (Nice to Have)</p>
+                        <div>
+                            {% for skill in item.recommendations.low_priority %}
+                                <span class="skill-tag skill-low">{{ skill|title }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p style="color: #666; text-align: center; padding: 2rem;">No skill gaps found - your resume matches all available jobs!</p>
+    {% endif %}
+</div>
+
+<!-- Learning Resources Section -->
+<div style="background: #f0f7ff; padding: 2rem; border-radius: 8px; border-left: 4px solid #667eea; margin-bottom: 2rem;">
+    <h3 style="color: #667eea; margin-bottom: 1rem;">💡 Learning Path Tips</h3>
+    <ul style="color: #555; line-height: 1.8;">
+        <li><strong>High Priority Skills:</strong> Focus on these first - they're critical for most target jobs</li>
+        <li><strong>Medium Priority Skills:</strong> Learn these next for better opportunities</li>
+        <li><strong>Low Priority Skills:</strong> These are nice-to-have and less urgent</li>
+        <li>After learning new skills, <a href="{% url 'edit_extracted_data' resume.id %}" style="color: #667eea; text-decoration: none; font-weight: 600;">update your resume</a> and regenerate matches</li>
+        <li>Consider online courses (Udemy, Coursera, LinkedIn Learning) for recommended skills</li>
+    </ul>
+</div>
+
+<div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+    <a href="{% url 'match_results' resume.id %}" class="btn secondary" style="padding: 0.75rem 1.5rem; border-radius: 8px; border: 1px solid #ddd; text-decoration: none; color: #667eea; background: white;">Back to Matches</a>
+    <a href="{% url 'resume_detail' resume.id %}" class="btn" style="background: #667eea; border: none; cursor: pointer; padding: 0.75rem 1.5rem; border-radius: 8px; color: white; font-weight: 600; text-decoration: none;">View Resume</a>
+</div>
+{% endblock %}
